@@ -6,6 +6,7 @@ import urllib.request
 import urllib3
 from datetime import datetime, timedelta
 from delta import configure_spark_with_delta_pip
+from delta.tables import DeltaTable
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import (
     year, month, dayofmonth, lit, col, to_timestamp, abs as spark_abs
@@ -13,6 +14,10 @@ from pyspark.sql.functions import (
 from pyspark.sql.types import (
     IntegerType, StructType, StructField, StringType, DoubleType, TimestampType
 )
+from pathlib import Path
+# Add src to Python path
+sys.path.insert(0, str(Path(__file__).parent))
+from utils import add_years, get_winter_dates, fetch_with_retry
 
 ## Set Spark environment
 os.environ["PYSPARK_PYTHON"] = sys.executable
@@ -35,70 +40,23 @@ API_BASE = "https://apim.misoenergy.org/pricing/v1"
 SUBSCRIPTION_KEY = os.getenv('MISO_PRICING_KEY')
 OUTPUT_DIR = "data/miso_lmp_rt_expost"
 
-## Rate limiting configuration
-REQUEST_DELAY = 0.5  # Seconds between requests
-MAX_RETRIES = 3
-RETRY_BACKOFF_BASE = 2  # Exponential backoff base
-
-## GRE nodes of interest
+## updated node list
 TARGET_NODES = [
-    "GRE.CAMBRCAMB2",  # Cambridge peaker
-    "GRE.CAMBRCAMB",   # Cambridge unit 1 (not peaker, but for comparison)
-    "GRE.ELKRI4",      # Elk River peaker
-    "OTP.GRE.DEUEL",   # MN/SD border node
-    "GRE.NSP.GREC",    # GRE aggregated load zone node
-    "MINN.HUB"         # Minnesota Hub
+"GRE.REC.CC1_DC",
+"GRE.AZ",
+"MDU.GRE.EMMLOG",
+"MINN.HUB",
+"OTP.GRE.DEUEL", 
+"WAUE",
+"NSP.GRE.BFRDG",
+"GRE.ALTW.ENDVI",
+"GRE.LKFLGR1",
+"OTP.GRE.ASHTII",
+"OTP.GREM_2.AZ",
+"GRE.SMP.GRE"
 ]
 
-def add_years(d, years):
-    """Return a date that's `years` years after the date (or before if negative).
-    Handles leap year edge cases by falling back to Feb 28 if needed."""
-    try:
-        return d.replace(year=d.year + years)
-    except ValueError:
-        return d.replace(year=d.year + years, day=28)
-
-def fetch_with_retry(url, headers, max_retries=MAX_RETRIES, backoff_base=RETRY_BACKOFF_BASE):
-    """
-    Fetch URL with exponential backoff for rate limiting and transient errors
-    """
-    for attempt in range(1, max_retries + 1):
-        try:
-            # Adding small delay between requests
-            time.sleep(REQUEST_DELAY)
-
-            req = urllib.request.Request(url, headers=headers)
-            response = urllib.request.urlopen(req, timeout=30)
-
-            if response.getcode() == 200:
-                raw_data = response.read().decode('utf-8')
-                return json.loads(raw_data)
-            else:
-                print(f"  Warning: HTTP {response.getcode()} on attempt {attempt}")
-
-        except urllib.error.HTTPError as e:
-            if e.code == 429:  # Too Many Requests
-                wait_time = backoff_base ** attempt  # Exponential backoff
-                print(f"  Rate limited (429) on attempt {attempt}. Waiting {wait_time}s...")
-                time.sleep(wait_time)
-                continue
-            elif e.code == 404:
-                # Node or page not found - don't retry
-                return None
-            else:
-                print(f"  HTTP error on attempt {attempt}: {e}")
-
-        except Exception as e:
-            print(f"  Error on attempt {attempt}: {str(e)}")
-
-        if attempt < max_retries:
-            wait_time = backoff_base ** attempt
-            print(f"  Waiting {wait_time}s before retry...")
-            time.sleep(wait_time)
-
-    print(f"  Failed after {max_retries} attempts")
-    return None
-
+## main function to fetch RT ex-post LMP data
 def fetch_lmp_rt_expost_for_date(target_date):
     """
     Fetch RT ex-post LMP data from MISO API for a specific date and list of target nodes
@@ -232,29 +190,55 @@ def process_date_range(start_date, end_date):
         if mismatch_count > 0:
             print(f"  Warning: {mismatch_count} records failed LMP component sum check")
 
-        # Write to Delta table with partitioning
-        (quality_df.write
-            .format("delta")
-            .partitionBy("year", "month", "day")
-            .mode("overwrite")
-            .save(OUTPUT_DIR))
+        
+        # partition to Delta table using merge (preserves existing data)
+        if DeltaTable.isDeltaTable(spark, OUTPUT_DIR):
+            # Table exists - merge new data
+            target_table = DeltaTable.forPath(spark, OUTPUT_DIR)
 
-        print(f"Saved {record_count} RT LMP records to {OUTPUT_DIR}")
-        return record_count
+            target_table.alias("target") \
+                .merge(
+                    quality_df.alias("source"),
+                    "target.node = source.node AND target.start_time = source.start_time"
+                ) \
+                .whenNotMatchedInsertAll() \
+                .execute()
+
+            print(f"Merged {record_count} records into existing Delta table")
+        else:
+            # Table doesn't exist - create it
+            (quality_df.write
+                .format("delta")
+                .partitionBy("year", "month", "day")
+                .mode("overwrite")
+                .save(OUTPUT_DIR))
+
+            print(f"Created new Delta table with {record_count} records")
+            return record_count
     else:
         print("No records to write.")
         return 0
 
 ## Main execution
 try:
-    today = datetime.utcnow().date()
-    start_date = today - timedelta(days=1115) # add_years(today, -3)  # 3 years ago
-    end_date = today - timedelta(days=1)  # up to yesterday to ensure complete data
+#    today = datetime.utcnow().date()
+#    start_date = today - timedelta(days=1115) # add_years(today, -3)  # 3 years ago
+#    end_date = today - timedelta(days=1)  # up to yesterday to ensure complete data
 
-    print(f"Starting RT LMP Ex-post data processing from {start_date} to {end_date}...")
-    print(f"Target nodes: {', '.join(TARGET_NODES)}")
+#    print(f"Starting RT LMP Ex-post data processing from {start_date} to {end_date}...")
+#    print(f"Target nodes: {', '.join(TARGET_NODES)}")
 
-    record_count = process_date_range(start_date, end_date)
+#    record_count = process_date_range(start_date, end_date)
+
+# Each winter season runs December-February
+    winter_years = [2020, 2021, 2022, 2023, 2024, 2025] # 2023-2025 is when ftr market data is available
+
+    for dec_year in winter_years:
+        start_date, end_date = get_winter_dates(dec_year)
+        print(f"\n=== Processing winter {dec_year}-{dec_year+1} from {start_date} to {end_date} ===")
+    
+        record_count = process_date_range(start_date, end_date)
+        print(f"Completed winter {dec_year}-{dec_year+1}, fetched {record_count} records")
 
 except Exception as e:
     print(f"Error during processing: {str(e)}")

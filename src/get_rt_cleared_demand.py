@@ -13,6 +13,10 @@ from pyspark.sql.functions import (
 from pyspark.sql.types import (
     IntegerType, StructType, StructField, StringType, DoubleType, TimestampType
 )
+from pathlib import Path
+# Add src to Python path
+sys.path.insert(0, str(Path(__file__).parent))
+from utils import add_years, get_winter_dates, fetch_with_retry
 
 ## Set Spark environment
 os.environ["PYSPARK_PYTHON"] = sys.executable
@@ -35,61 +39,7 @@ API_BASE = "https://apim.misoenergy.org/lgi/v1"
 SUBSCRIPTION_KEY = os.getenv('MISO_LOAD_KEY')
 OUTPUT_DIR = "data/miso_rt_cleared_demand"
 
-## Rate limiting configuration
-REQUEST_DELAY = 0.5  # Seconds between requests
-MAX_RETRIES = 3
-RETRY_BACKOFF_BASE = 2  # Exponential backoff base
-
-
-def add_years(d, years):
-    """Return a date that's `years` years after the date (or before if negative).
-    Handles leap year edge cases by falling back to Feb 28 if needed."""
-    try:
-        return d.replace(year=d.year + years)
-    except ValueError:
-        return d.replace(year=d.year + years, day=28)
-
-def fetch_with_retry(url, headers, max_retries=MAX_RETRIES, backoff_base=RETRY_BACKOFF_BASE):
-    """
-    Fetch URL with exponential backoff for rate limiting and transient errors
-    """
-    for attempt in range(1, max_retries + 1):
-        try:
-            # Adding small delay between requests
-            time.sleep(REQUEST_DELAY)
-
-            req = urllib.request.Request(url, headers=headers)
-            response = urllib.request.urlopen(req, timeout=30)
-
-            if response.getcode() == 200:
-                raw_data = response.read().decode('utf-8')
-                return json.loads(raw_data)
-            else:
-                print(f"  Warning: HTTP {response.getcode()} on attempt {attempt}")
-
-        except urllib.error.HTTPError as e:
-            if e.code == 429:  # Too Many Requests
-                wait_time = backoff_base ** attempt  # Exponential backoff
-                print(f"  Rate limited (429) on attempt {attempt}. Waiting {wait_time}s...")
-                time.sleep(wait_time)
-                continue
-            elif e.code == 404:
-                # Node or page not found - don't retry
-                return None
-            else:
-                print(f"  HTTP error on attempt {attempt}: {e}")
-
-        except Exception as e:
-            print(f"  Error on attempt {attempt}: {str(e)}")
-
-        if attempt < max_retries:
-            wait_time = backoff_base ** attempt
-            print(f"  Waiting {wait_time}s before retry...")
-            time.sleep(wait_time)
-
-    print(f"  Failed after {max_retries} attempts")
-    return None
-
+## main function to fetch RT cleared demand data
 def fetch_rt_cleared_demand_for_date(target_date):
     """
     Fetch RT cleared demand data from MISO API for a specific date and target region
@@ -172,6 +122,7 @@ def process_date_range(start_date, end_date):
     while current_date <= end_date:
         print(f"Processing date: {current_date.strftime('%Y-%m-%d')}")
         date_records = fetch_rt_cleared_demand_for_date(current_date)
+        time.sleep(60)
 
         if date_records:
             all_records.extend(date_records)
@@ -228,6 +179,21 @@ try:
     print(f"Starting RT cleared demand data processing from {start_date} to {end_date}...")
 
     record_count = process_date_range(start_date, end_date)
+## also fetch 2023-02-13 and 2023-02-14 separately due to data gaps
+ #   extra_dates = [datetime(2023, 2, 13).date(), datetime(2023, 2, 14).date()]
+ #    for extra_date in extra_dates:
+ #        print(f"\n=== Processing extra date {extra_date} ===")        
+    #        record_count = process_date_range(extra_date, extra_date)
+        
+# Each winter season runs December-February
+ #   winter_years = [2018, 2019, 2020, 2021, 2022]  # 2020-2021 captures Uri, 2022-2023 captures Elliott
+
+#    for dec_year in winter_years:
+#        start_date, end_date = get_winter_dates(dec_year)
+#        print(f"\n=== Processing winter {dec_year}-{dec_year+1} from {start_date} to {end_date} ===")
+#    
+#        record_count = process_date_range(start_date, end_date)
+#        print(f"Completed winter {dec_year}-{dec_year+1}, fetched {record_count} records")
 
 except Exception as e:
     print(f"Error during processing: {str(e)}")
