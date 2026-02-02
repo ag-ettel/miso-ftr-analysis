@@ -1,0 +1,25 @@
+## GRE nodes of interest
+TARGET_NODES = [
+    "GRE.CAMBRCAMB2",  # Cambridge peaker
+    "GRE.CAMBRCAMB",   # Cambridge unit 1 (not peaker, but for comparison)
+    "GRE.ELKRI4",      # Elk River peaker
+    "OTP.GRE.DEUEL",   # MN/SD border node
+    "GRE.NSP.GREC",    # GRE aggregated load zone node
+    "MINN.HUB"         # Minnesota Hub
+]
+
+## updated node list
+TARGET_NODES = [
+"GRE.REC.CC1_DC",
+"GRE.AZ",
+"MDU.GRE.EMMLOG",
+# "MINN.HUB", # already included
+# "OTP.GRE.DEUEL", # already included
+"WAUE",
+"NSP.GRE.BFRDG",
+"GRE.ALTW.ENDVI",
+"GRE.LKFLGR1",
+"OTP.GRE.ASHTII",
+"OTP.GREM_2.AZ",
+"GRE.SMP.GRE"
+]

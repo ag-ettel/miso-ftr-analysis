@@ -1,8 +1,15 @@
+import sys
 import requests
 import polars as pl
 from datetime import datetime, timedelta
 from pathlib import Path
 import time
+from pathlib import Path
+
+# Add src to Python path and import utils
+src_path = Path(__file__).parent
+sys.path.insert(0, str(src_path))
+from utils import add_years, get_winter_dates
 
 def fetch_kmsp_weather(start_date: str, end_date: str) -> pl.DataFrame:
     """
@@ -270,8 +277,8 @@ def main():
         start_date = today - timedelta(days=3*366)
         append_mode = False
     
-    start_date_str = start_date.strftime("%Y-%m-%d")
-    end_date_str = today.strftime("%Y-%m-%d")
+    start_date_str = "2000-12-01" #start_date.strftime("%Y-%m-%d")
+    end_date_str = "2018-11-30" #today.strftime("%Y-%m-%d")
 
     print(f"Fetching hourly weather data for KMSP from {start_date_str} to {end_date_str}")
     print(f"Append mode: {append_mode}")
