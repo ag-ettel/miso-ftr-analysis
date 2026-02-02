@@ -221,24 +221,24 @@ def process_date_range(start_date, end_date):
 
 ## Main execution
 try:
-#    today = datetime.utcnow().date()
-#    start_date = today - timedelta(days=1115) # add_years(today, -3)  # 3 years ago
-#    end_date = today - timedelta(days=1)  # up to yesterday to ensure complete data
+    today = datetime.utcnow().date()
+    start_date = today - timedelta(days=4) # add_years(today, -3)  # 3 years ago
+    end_date = today - timedelta(days=1)  # up to yesterday to ensure complete data
 
-#    print(f"Starting RT LMP Ex-post data processing from {start_date} to {end_date}...")
-#    print(f"Target nodes: {', '.join(TARGET_NODES)}")
+    print(f"Starting RT LMP Ex-post data processing from {start_date} to {end_date}...")
+    print(f"Target nodes: {', '.join(TARGET_NODES)}")
 
-#    record_count = process_date_range(start_date, end_date)
+    record_count = process_date_range(start_date, end_date)
 
 # Each winter season runs December-February
-    winter_years = [2020, 2021, 2022, 2023, 2024, 2025] # 2023-2025 is when ftr market data is available
+#    winter_years = [2014, 2015] # 2023-2025 is when ftr market data is available
 
-    for dec_year in winter_years:
-        start_date, end_date = get_winter_dates(dec_year)
-        print(f"\n=== Processing winter {dec_year}-{dec_year+1} from {start_date} to {end_date} ===")
+#    for dec_year in winter_years:
+#        start_date, end_date = get_winter_dates(dec_year)
+#        print(f"\n=== Processing winter {dec_year}-{dec_year+1} from {start_date} to {end_date} ===")
     
-        record_count = process_date_range(start_date, end_date)
-        print(f"Completed winter {dec_year}-{dec_year+1}, fetched {record_count} records")
+#        record_count = process_date_range(start_date, end_date)
+#        print(f"Completed winter {dec_year}-{dec_year+1}, fetched {record_count} records")
 
 except Exception as e:
     print(f"Error during processing: {str(e)}")

@@ -190,7 +190,7 @@ def process_date_range(start_date, end_date):
             target_table.alias("target") \
                 .merge(
                     quality_df.alias("source"),
-                    "target.node = source.node AND target.start_time = source.start_time"
+                    "target.region = source.region AND target.start_time = source.start_time"
                 ) \
                 .whenNotMatchedInsertAll() \
                 .execute()
@@ -214,12 +214,23 @@ def process_date_range(start_date, end_date):
 ## Main execution
 try:
     today = datetime.utcnow().date()
-    start_date = today - timedelta(days=1115) # add_years(today, -3)  # 3 years ago
+    start_date = today - timedelta(days=8) # add_years(today, -3)  # 3 years ago
     end_date = today - timedelta(days=1)  # up to yesterday to ensure complete data
 
     print(f"Starting RT fuel mix data processing from {start_date} to {end_date}...")
-
     record_count = process_date_range(start_date, end_date)
+    
+# Each winter season runs December-February
+#    winter_years = [2014, 2015] # 2018, 2019, 2020, 2021,   # 2020-2021 captures Uri, 2022-2023 captures Elliott
+
+#    for dec_year in winter_years:
+#        start_date, end_date = get_winter_dates(dec_year)
+#        print(f"\n=== Processing winter {dec_year}-{dec_year+1} from {start_date} to {end_date} ===")
+    
+#        record_count = process_date_range(start_date, end_date)
+#        print(f"Completed winter {dec_year}-{dec_year+1}, fetched {record_count} records")
+
+#    record_count = process_date_range(start_date, end_date)
 
 except Exception as e:
     print(f"Error during processing: {str(e)}")

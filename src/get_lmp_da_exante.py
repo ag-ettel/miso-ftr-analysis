@@ -40,11 +40,6 @@ API_BASE = "https://apim.misoenergy.org/pricing/v1"
 SUBSCRIPTION_KEY = os.getenv('MISO_PRICING_KEY')
 OUTPUT_DIR = "data/miso_lmp_da_exante"
 
-## Rate limiting configuration
-REQUEST_DELAY = 0.8  # Seconds between requests
-MAX_RETRIES = 3
-RETRY_BACKOFF_BASE = 2  # Exponential backoff base
-
 TARGET_NODES = [
 "GRE.REC.CC1_DC",
 "GRE.AZ",
@@ -226,7 +221,7 @@ def process_date_range(start_date, end_date):
 ## Main execution
 try:
 #    today = datetime.utcnow().date()
-#    start_date = today - timedelta(days=1115) # add_years(today, -3)  # 3 years ago
+#    start_date = today - timedelta(days=1080) # add_years(today, -3)  # 3 years ago
 #    end_date = today - timedelta(days=1)  # up to yesterday to ensure complete data
 
 #    print(f"Starting DA LMP Ex-ante data processing from {start_date} to {end_date}...")
@@ -235,7 +230,8 @@ try:
 #    record_count = process_date_range(start_date, end_date)
 
 # Each winter season runs December-February
-    winter_years = [2018, 2019, 2020, 2021, 2022]  # 2020-2021 captures Uri, 2022-2023 captures Elliott
+# reprocess 2022 did not capture all data
+    winter_years = [2014, 2015, 2016, 2017, 2018, 2019]  # 2020-2021 captures Uri, 2022-2023 captures Elliott
 
     for dec_year in winter_years:
         start_date, end_date = get_winter_dates(dec_year)
