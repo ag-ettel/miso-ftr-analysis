@@ -44,7 +44,7 @@ Wind generation plays a critical role here. During normal winter conditions, abu
 
 The plot below illustrates this relationship. Each point represents an hour at a node, with temperature on the X-axis and real-time electricity prices on the Y-axis. Points are colored by wind generation levels - blue dots mean less wind generation is occuring and red dots are high generation. The clustering of extreme prices (>$1,000/MWh) occurs when very cold temperatures coincide with low wind generation.
 
-<img src="rt_lmp_vs_temperature_lowwindflag.png" width="75%" style="display: block; margin: 0 auto;" />
+<img src="rt_lmp_vs_temperature_windmw_rt.png" width="75%" style="display: block; margin: 0 auto;" />
 
 
 
