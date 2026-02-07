@@ -122,7 +122,7 @@ This methodology has worked well historically to price normal tail risk. But as 
 
 <img src="plots/waue_gre_ftr_cvar_uri_tail.png" width="75%" style="display: block; margin: 0 auto;" />
 
-The upshot is that CVaR fails to convey future tail risk because there is no guarantee the worst case event is contained in the historical dataset. Also because tail events are cascading the number of hours exceeding the threshold can be much larger than the 5% confidence interval. This problem is exacerbated by climate change, which is actively fattening the left tail of temperature distributions - making historical data increasingly obsolete for pricing extreme cold events. CVaR serves a purpose to analyze historical risk, baseline expected prices at auction and document it for regulatory purposes. However its implementation should not be viewed as sufficient for capturing risk. It is important to note many people understand that CVaR has limitations, but the demonstration above serves to illustrate why its assumptions fail during tail events. Proper risk management must be more involved. It requires forward-looking scenario analysis, physical system modeling, and recognition that grid dynamics evolve continuously - driven by generation mix changes, transmission upgrades, and climate-induced shifts in weather patterns.
+The upshot is that CVaR fails to convey future tail risk because there is no guarantee the worst case event is contained in the historical dataset. Also because tail events are cascading the number of hours exceeding the threshold can be much larger than the 5% confidence interval. This problem is exacerbated by climate change, which is actively fattening the left tail of temperature distributions - making historical data increasingly obsolete for pricing extreme cold events. CVaR serves a purpose to analyze historical risk, baseline expected prices at auction and document it for regulatory purposes. However its implementation should not be viewed as sufficient for capturing risk. It is important to note many people understand that CVaR has limitations, but the demonstration above serves to illustrate why its assumptions fail during tail events. Proper risk management must be more involved. It requires forward-looking scenario analysis, knowledge of physical systems, and recognition that grid dynamics evolve continuously - driven by generation mix changes, transmission upgrades, and climate-induced shifts in weather patterns. From a quantitative perspective scenario analysis is quite appealing as it allows one to simulate and analyze how winter seasons with greater skewness and volatility (as we are witnessing with Minnesota's climate data) can impact profitability.
 
 ## Part 4: Discussion of High-Level Implications for Hedging Strategy
 
@@ -139,6 +139,8 @@ The climate analysis presented above compounds CVaR's insufficiency and amplifie
 
 This analysis necessarily simplifies complex market dynamics and focuses on a single FTR path over limited time periods. A complete hedging strategy would require portfolio-level analysis and assessment of correlated risks across multiple positions. Still, the WAUE→GRE.AZ case study illustrates fundamental principles applicable to broader FTR strategy development.
 
+The analysis is currently retrospective. No forward-looking scenario modeling has been conducted. This is an immediate next step and currently a work in progress.
+
 In addition, several more limitations merit acknowledgment:
 - Extreme event sample size (n=2) limits prediction confidence.
 - Natural gas pipeline constraint data is not publicly available, requiring proxy measures.
@@ -147,7 +149,7 @@ In addition, several more limitations merit acknowledgment:
 - Climate analysis covers 17 years; longer historical data might reveal cyclical patterns vs trends.
 - All weather analysis relies on data from KMSP (Minneapolis) weather station.
 - Analysis does not account for grid upgrades, outages, or physical constraints beyond those suggested by MISO's fuel mix API.
-- Analysis is entirely retrospective. No forward-looking modeling was conducted and claims about GRE's capabilities were inferred based on FTR outcomes for a single season.
+- Claims about GRE's capabilities were inferred based on FTR outcomes for select nodes over a limited number of seasons.
 - Analysis focused exclusively on cold events in Minnesota winter. The analysis did not cover other types of extreme winter weather like ice storms or heavy snowfall. 
 - Spring, summer, and fall will exhibit different dynamics and were not analyzed here.
 
