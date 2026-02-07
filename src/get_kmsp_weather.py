@@ -277,8 +277,8 @@ def main():
         start_date = today - timedelta(days=3*366)
         append_mode = False
     
-    start_date_str = "2000-12-01" #start_date.strftime("%Y-%m-%d")
-    end_date_str = "2018-11-30" #today.strftime("%Y-%m-%d")
+    start_date_str = "2026-01-17" #start_date.strftime("%Y-%m-%d")
+    end_date_str = "2026-02-02" #today.strftime("%Y-%m-%d")
 
     print(f"Fetching hourly weather data for KMSP from {start_date_str} to {end_date_str}")
     print(f"Append mode: {append_mode}")
