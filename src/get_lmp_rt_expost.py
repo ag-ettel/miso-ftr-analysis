@@ -222,7 +222,7 @@ def process_date_range(start_date, end_date):
 ## Main execution
 try:
     today = datetime.utcnow().date()
-    start_date = today - timedelta(days=4) # add_years(today, -3)  # 3 years ago
+    start_date = today - timedelta(days=6) # add_years(today, -3)  # 3 years ago
     end_date = today - timedelta(days=1)  # up to yesterday to ensure complete data
 
     print(f"Starting RT LMP Ex-post data processing from {start_date} to {end_date}...")
