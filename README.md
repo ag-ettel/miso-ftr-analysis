@@ -9,7 +9,7 @@
 
 [View Executive Presentation (PDF)](presentation/analyzing-risk-executive.pdf)
 
-**Project Origin:** This analysis evolved from a load forecasting investigation to comprehensive energy market risk assessment. I began by examining MAPE and bias in MISO's load forecasts and found MISO systemically underestimates load demand in extreme cold weather. When an FTR Analyst opportunity emerged, it was a natural pivot to expand the methodology to include financial transmission rights and portfolio risk management. This transition demonstrates how load forecasting analysis can apply directly to energy market analysis.
+**Project Origin:** This analysis evolved from a load forecasting investigation into an energy market risk assessment. I began by examining MAPE and bias in MISO's load forecasts and found MISO systemically underestimates load demand in extreme cold weather. When an FTR Analyst opportunity emerged, it was a natural pivot to expand the methodology to include financial transmission rights and portfolio risk management. This transition demonstrates how load forecasting analysis can apply directly to energy market analysis.
 
 ---
 
