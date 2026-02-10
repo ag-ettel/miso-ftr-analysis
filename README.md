@@ -9,6 +9,10 @@
 
 [View Executive Presentation (PDF)](presentation/analyzing-risk-executive.pdf)
 
+**Project Origin:** This analysis evolved from a load forecasting investigation to comprehensive energy market risk assessment. I began by examining MAPE and bias in MISO's load forecasts and found MISO systemically underestimates load demand in extreme cold weather. When an FTR Analyst opportunity emerged, it was a natural pivot to expand the methodology to include financial transmission rights and portfolio risk management. This transition demonstrates how load forecasting analysis can apply directly to energy market analysis.
+
+---
+
 This analysis examines climate risk and profit and loss of Financial Transmission Rights (FTRs) under baseline and extreme scenarios using case studies relevant to Great River Energy (GRE). It also discusses considerations for FTR purchase strategy in an evolving landscape. The project has four stages: 
 
 1. Documenting Minnesota's changing winter weather patterns and the impact on generation.
